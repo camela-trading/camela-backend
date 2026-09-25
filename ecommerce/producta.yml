@@ -1,0 +1,21 @@
+info:
+  name: producta
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: http://127.0.0.1:8000/api/admin/products
+  headers:
+    - name: Authorization
+      value: Bearer 3|ofuw48zSvs6QRFFYM7blaNuy7DoHb8F7QougH4JP86a55bbf
+    - name: Accept
+      value: application/json
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+​
