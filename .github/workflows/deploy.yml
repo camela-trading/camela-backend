@@ -1,0 +1,24 @@
+name: Deploy Laravel to Hostinger
+
+on:
+  push:
+    branches: [ master ] # Change to 'main' if that is your primary branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOSTINGER_HOST }}
+          username: ${{ secrets.HOSTINGER_USER }}
+          key: ${{ secrets.HOSTINGER_SSH_KEY }}
+          port: ${{ secrets.HOSTINGER_PORT }}
+          script: |
+            cd ~/domains/api.camela.com.sg/laravel
+            git pull origin master
+            composer install --no-dev --optimize-autoloader --no-interaction
+            php artisan optimize:clear
+            php artisan optimize
