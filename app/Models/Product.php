@@ -40,6 +40,9 @@ class Product extends Model
 
         'seo_description',
 
+        'description_ms', // added by Darah | translation to malay
+
+        'description_zh', // added by Darah | translation to chinese
     ];
 
     public function category()
