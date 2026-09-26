@@ -41,6 +41,18 @@ class ProductResource extends JsonResource
                 })
                 ->values();
         });
+        // added by darah
+        $imagesDetailed = $this->whenLoaded('images', function () use ($resolveImageUrl) {
+            return $this->images
+                ->sortBy('sort_order')
+                ->map(function ($image) use ($resolveImageUrl) {
+                    return [
+                        'id' => $image->id,
+                        'url' => $resolveImageUrl($image->image_path),
+                    ];
+                })
+                ->values();
+        });
 
         $primaryImage = null;
 
@@ -101,6 +113,8 @@ class ProductResource extends JsonResource
             'image' => $primaryImage,
 
             'images' => $images,
+            
+            'images_detailed' => $imagesDetailed,
 
         ];
     }
