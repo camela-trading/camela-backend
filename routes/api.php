@@ -36,6 +36,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route as FacadesRoute;
 use App\Models\User;
 
+use App\Http\Controllers\Api\Admin\CategoryController as AdminCategoryController; // added by Darah
+
 /*
 |--------------------------------------------------------------------------
 | Authentication
@@ -246,6 +248,22 @@ Route::prefix('admin')
         Route::post(
             'notifications/read-all',
             [NotificationController::class, 'markAllAsRead']
+        );
+
+        // added by darah
+        Route::get(
+            'categories',
+            [AdminCategoryController::class, 'index']
+        );
+
+        Route::post(
+            'categories',
+            [AdminCategoryController::class, 'store']
+        );
+
+        Route::patch(
+            'categories/{category}',
+            [AdminCategoryController::class, 'update']
         );
     }); 
 /*
