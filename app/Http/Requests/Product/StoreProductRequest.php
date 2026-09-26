@@ -101,6 +101,16 @@ class StoreProductRequest extends FormRequest
                 'string'
             ],
 
+            'description_ms'=>[ // added by Darah | translation to malay
+                'nullable',
+                'string'
+            ],
+
+            'description_zh'=>[ // added by Darah | translation to chinese
+                'nullable',
+                'string'
+            ],
+
             'featured'=>[
                 'boolean'
             ],

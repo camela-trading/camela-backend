@@ -74,6 +74,16 @@ class UpdateProductRequest extends FormRequest
                 'sometimes',
                 'string'
             ],
+            
+            'description_ms'=>[ // added by Darah | translation to malay
+                'nullable',
+                'string'
+            ],
+
+            'description_zh'=>[     // added by Darah | translation to chinese
+                'nullable',
+                'string'
+            ],
 
             'status' => [
                 'required',

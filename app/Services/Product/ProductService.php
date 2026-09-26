@@ -30,6 +30,10 @@ class ProductService
 
             'description'=>$data['description'],
 
+            'description_ms'=>$data['description_ms'] ?? null, // added by Darah | translation to malay
+
+            'description_zh'=>$data['description_zh'] ?? null,  // added by Darah | translation to chinese
+
             'price'=>$data['price'],
 
             'compare_price'=>$data['compare_price'] ?? null,
@@ -112,6 +116,10 @@ class ProductService
                 'short_description'=>$data['short_description'] ?? $product->short_description,
 
                 'description'=>$data['description'] ?? $product->description,
+                                
+                'description_ms'=>$data['description_ms'] ?? $product->description_ms,  // added by Darah | translation to malay
+
+                'description_zh'=>$data['description_zh'] ?? $product->description_zh,  // added by Darah | translation to chinese
 
                 'price'=>$data['price'] ?? $product->price,
 

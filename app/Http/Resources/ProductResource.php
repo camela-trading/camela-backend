@@ -94,6 +94,10 @@ class ProductResource extends JsonResource
 
             'description' => $this->description,
 
+            'description_ms' => $this->description_ms,  // added by Darah | translation to malay
+
+            'description_zh' => $this->description_zh,  // added by Darah | translation to chinese
+
             'short_description' => $this->short_description,
 
             'stock' => $this->stock,
@@ -113,7 +117,7 @@ class ProductResource extends JsonResource
             'image' => $primaryImage,
 
             'images' => $images,
-            
+
             'images_detailed' => $imagesDetailed,
 
         ];
