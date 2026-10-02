@@ -58,9 +58,14 @@ class CheckoutService
 
             }
 
+            // $subtotal = $items->sum(function ($item) {
+
+            //     return $item->quantity * $item->product->price;
+
+            // });
             $subtotal = $items->sum(function ($item) {
 
-                return $item->quantity * $item->product->price;
+                return $item->product->lineTotal($item->quantity);
 
             });
 
@@ -153,11 +158,12 @@ class CheckoutService
 
                     'price' => $item->product->price,
 
-                    'subtotal' =>
+                    // 'subtotal' =>
 
-                        $item->quantity
+                    //     $item->quantity
 
-                        * $item->product->price,
+                    //     * $item->product->price,
+                    'subtotal' => $item->product->lineTotal($item->quantity),
 
                 ]);
 
