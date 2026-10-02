@@ -40,6 +40,10 @@ class ProductService
 
             'cost_price'=>$data['cost_price'] ?? null,
 
+            'promo_buy'=>$data['promo_buy'] ?? null, // added by Darah | promo buy
+
+            'promo_free'=>$data['promo_free'] ?? null,  // added by Darah | promo free
+
             'stock'=>$data['stock'],
 
             'low_stock_alert'=>$data['low_stock_alert'] ?? 5,
