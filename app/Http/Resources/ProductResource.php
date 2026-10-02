@@ -86,6 +86,10 @@ class ProductResource extends JsonResource
                 ? (float) $this->compare_price
                 : null,
 
+            'promo_buy' => $this->promo_buy, // added by Darah | promo buy
+                
+            'promo_free' => $this->promo_free, // added by Darah | promo free
+
             'category' => optional($this->category)->name,
 
             'category_slug' => optional($this->category)->slug,

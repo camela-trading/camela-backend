@@ -43,6 +43,10 @@ class Product extends Model
         'description_ms', // added by Darah | translation to malay
 
         'description_zh', // added by Darah | translation to chinese
+      
+        'promo_buy', // added by Darah | promo buy
+      
+        'promo_free', // added by Darah | promo free
     ];
 
     public function category()
@@ -58,5 +62,16 @@ class Product extends Model
     public function inventoryTransactions()
     {
         return $this->hasMany(InventoryTransaction::class);
+    }
+
+    public function lineTotal(int $qty): float
+    {
+        if (!$this->promo_buy || !$this->promo_free) {
+            return $this->price * $qty;
+        }
+
+        $free = intdiv($qty, $this->promo_buy + $this->promo_free) * $this->promo_free;
+
+        return $this->price * ($qty - $free);
     }
 }

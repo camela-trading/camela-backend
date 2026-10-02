@@ -47,6 +47,10 @@ class StoreProductRequest extends FormRequest
                 'numeric',
                 'min:0'
             ],
+            
+            'promo_buy' => ['nullable', 'integer', 'min:1'], // added by Darah | promo buy
+
+            'promo_free' => ['nullable', 'integer', 'min:1'],  // added by Darah | promo free
 
             'compare_price'=>[
                 'nullable',
