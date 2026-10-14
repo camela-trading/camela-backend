@@ -25,7 +25,7 @@ use App\Http\Controllers\Api\Customer\ProfileController;
 use App\Http\Controllers\Api\Customer\AddressController;
 
 use App\Http\Controllers\Api\Payment\HitPayController;
-use App\Http\Controllers\StripePaymentController;
+use App\Http\Controllers\Api\Payment\StripePaymentController;
 
 use App\Http\Controllers\Api\Admin\CustomerController;
 
