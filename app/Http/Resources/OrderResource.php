@@ -35,6 +35,10 @@ class OrderResource extends JsonResource
 
             'hitpay_reference' => $this->hitpay_reference,
 
+            'stripe_session_id' => $this->stripe_session_id,
+
+'stripe_payment_intent_id' => $this->stripe_payment_intent_id,
+
             'transaction_reference' => $this->transaction_reference,
 
             'gateway_response' => $this->gateway_response,

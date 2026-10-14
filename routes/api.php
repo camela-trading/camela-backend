@@ -25,6 +25,7 @@ use App\Http\Controllers\Api\Customer\ProfileController;
 use App\Http\Controllers\Api\Customer\AddressController;
 
 use App\Http\Controllers\Api\Payment\HitPayController;
+use App\Http\Controllers\StripePaymentController;
 
 use App\Http\Controllers\Api\Admin\CustomerController;
 
@@ -429,3 +430,7 @@ Route::middleware('auth:sanctum')->get('/debug-user', function (\Illuminate\Http
         'user' => $request->user(),
     ]);
 });
+
+
+Route::middleware('auth:sanctum')->post('/payments/stripe/create', [StripePaymentController::class, 'create']);
+Route::post('/payments/stripe/webhook', [StripePaymentController::class, 'webhook']); // no auth

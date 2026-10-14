@@ -28,7 +28,7 @@ class CheckoutRequest extends FormRequest
 
                 Rule::in([
 
-                    'HITPAY',
+                    'STRIPE',
 
                     'COD'
 

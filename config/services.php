@@ -37,31 +37,8 @@ return [
         ],
     ],
 
-    'hitpay' => [
-
-        'mode' => env('HITPAY_MODE', 'sandbox'),
-
-        'api_key' => env('HITPAY_API_KEY'),
-
-        'salt' => env('HITPAY_SALT', env('HITPAY_WEBHOOK_SALT')),
-
-        'webhook_url' => env('HITPAY_WEBHOOK_URL'),
-
-        'success_url' => env('HITPAY_SUCCESS_URL'),
-
-        'cancel_url' => env('HITPAY_CANCEL_URL'),
-
-        'currency' => env('HITPAY_CURRENCY', 'PHP'),
-
-        'base_url' => env('HITPAY_API_URL', env('HITPAY_BASE_URL')),
-
-        'payment_methods' => array_values(array_filter(array_map(
-            'trim',
-            explode(',', (string) env('HITPAY_PAYMENT_METHODS', ''))
-        ))),
-
-        'frontend_url' => env('HITPAY_FRONTEND_URL', env('FRONTEND_URL')),
-
-    ],
-
+'stripe' => [
+    'secret' => env('STRIPE_SECRET'),
+    'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+],
 ];

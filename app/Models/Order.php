@@ -34,6 +34,10 @@ class Order extends Model
 
         'hitpay_reference',
 
+        'stripe_session_id',
+
+'stripe_payment_intent_id',
+
         'transaction_reference',
 
         'gateway_response',
