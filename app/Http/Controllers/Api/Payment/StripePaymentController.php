@@ -13,42 +13,127 @@ use Stripe\Webhook;
 
 class StripePaymentController extends Controller
 {
-    public function create(Request $request)
-    {
-        $request->validate(['order_id' => 'required|integer']);
+public function create(Request $request)
+{
+    $request->validate(['order_id' => 'required|integer']);
 
-        $order = Order::where('id', $request->order_id)
-            ->where('user_id', $request->user()->id)
-            ->firstOrFail();
+    $order = Order::with('items.product')
+        ->where('id', $request->order_id)
+        ->where('user_id', $request->user()->id)
+        ->firstOrFail();
 
-        Stripe::setApiKey(config('services.stripe.secret'));
+    Stripe::setApiKey(config('services.stripe.secret'));
 
-        $session = Session::create([
-            'mode' => 'payment',
-            'customer_email' => $request->user()->email,
-            'line_items' => [[
-                'quantity' => 1,
-                'price_data' => [
-                    'currency' => 'sgd', 
-                    'unit_amount' => (int) round($order->grand_total * 100),
-                    'product_data' => [
-                        'name' => 'Order #' . $order->order_number,
-                    ],
-                ],
-            ]],
-            'metadata' => ['order_id' => $order->id],
-            'success_url' => env('FRONTEND_URL') . '/order-confirmation/' . $order->id,
-            'cancel_url' => env('FRONTEND_URL') . '/checkout?payment=cancelled',
-        ]);
+    $currency = 'sgd';
+    $lineItems = [];
+    $itemsTotal = 0; // cents
 
-        $order->update([
-            'payment_status' => 'PENDING',
-            'payment_method' => 'STRIPE',
-            'stripe_session_id' => $session->id,
-        ]);
+    // 1. One row per product
+    foreach ($order->items as $item) {
+        $product = $item->product;
+        $unitAmount = (int) round($item->price * 100);
+        $itemsTotal += $unitAmount * $item->quantity;
 
-        return response()->json(['payment_url' => $session->url]);
+        $productData = [
+            'name' => $product->name ?? 'Product #' . $item->product_id,
+        ];
+
+        $image = $product->image ?? null; // adjust to your Product column
+        if ($image) {
+            $productData['images'] = [
+                str_starts_with($image, 'http') ? $image : asset('storage/' . ltrim($image, '/')),
+            ];
+        }
+
+        $lineItems[] = [
+            'quantity' => $item->quantity,
+            'price_data' => [
+                'currency' => $currency,
+                'unit_amount' => $unitAmount,
+                'product_data' => $productData,
+            ],
+        ];
     }
+
+    // 2. Tax as its own row
+    $tax = (int) round($order->tax * 100);
+    if ($tax > 0) {
+        $lineItems[] = [
+            'quantity' => 1,
+            'price_data' => [
+                'currency' => $currency,
+                'unit_amount' => $tax,
+                'product_data' => ['name' => 'Tax'],
+            ],
+        ];
+    }
+
+    // 3. Shipping as a shipping option
+    $shipping = (int) round($order->shipping_fee * 100);
+    $shippingOptions = [[
+        'shipping_rate_data' => [
+            'type' => 'fixed_amount',
+            'display_name' => 'Shipping',
+            'fixed_amount' => ['amount' => $shipping, 'currency' => $currency],
+        ],
+    ]];
+
+    // 4. Discount as a coupon (Stripe doesn't allow negative line items)
+    $discount = (int) round($order->discount * 100);
+    $discounts = [];
+    if ($discount > 0) {
+        $coupon = \Stripe\Coupon::create([
+            'amount_off' => $discount,
+            'currency' => $currency,
+            'duration' => 'once',
+            'name' => 'Discount',
+        ]);
+        $discounts[] = ['coupon' => $coupon->id];
+    }
+
+    // Safety check: Stripe's total must match what the customer saw
+    $expected = $itemsTotal + $tax + $shipping - $discount;
+    $grandTotal = (int) round($order->grand_total * 100);
+    if ($expected !== $grandTotal) {
+        \Log::warning('Stripe total mismatch', [
+            'order_id' => $order->id,
+            'expected' => $expected,
+            'grand_total' => $grandTotal,
+        ]);
+    }
+
+    $params = [
+        'mode' => 'payment',
+        'customer_email' => $request->user()->email,
+        'line_items' => $lineItems,
+        'shipping_options' => $shippingOptions,
+        'client_reference_id' => $order->order_number,
+        'metadata' => [
+            'order_id' => $order->id,
+            'order_number' => $order->order_number,
+        ],
+        'payment_intent_data' => [
+            'description' => 'Order #' . $order->order_number,
+            'metadata' => ['order_id' => $order->id],
+        ],
+        'success_url' => env('FRONTEND_URL') . '/order-confirmation/' . $order->id,
+        'cancel_url' => env('FRONTEND_URL') . '/checkout?payment=cancelled',
+    ];
+
+    if ($discounts) {
+        $params['discounts'] = $discounts;
+    }
+
+    $session = Session::create($params);
+
+    $order->update([
+        'payment_status' => 'PENDING',
+        'payment_method' => 'STRIPE',
+        'stripe_session_id' => $session->id,
+    ]);
+
+    return response()->json(['payment_url' => $session->url]);
+}
 
     public function webhook(Request $request)
     {
