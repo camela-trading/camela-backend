@@ -17,7 +17,7 @@ public function create(Request $request)
 {
     $request->validate(['order_id' => 'required|integer']);
 
-    $order = Order::with('items.product')
+    $order = Order::with('items.product.images')
         ->where('id', $request->order_id)
         ->where('user_id', $request->user()->id)
         ->firstOrFail();
@@ -29,22 +29,30 @@ public function create(Request $request)
     $itemsTotal = 0; // cents
 
     // 1. One row per product
-    foreach ($order->items as $item) {
-        $product = $item->product;
-        $unitAmount = (int) round($item->price * 100);
-        $itemsTotal += $unitAmount * $item->quantity;
+foreach ($order->items as $item) {
+    $product = $item->product;
+    $name = $product->title ?? 'Product #' . $item->product_id;
 
-        $productData = [
-            'name' => $product->name ?? 'Product #' . $item->product_id,
+    // Image comes from the ProductImage relation (adjust the column name, see note below)
+    $firstImage = $product?->images->first();
+    $imagePath = $firstImage->image_path ?? $firstImage->path ?? $firstImage->url ?? null;
+
+    $productData = ['name' => $name];
+
+    if ($imagePath) {
+        $productData['images'] = [
+            str_starts_with($imagePath, 'http')
+                ? $imagePath
+                : asset('storage/' . ltrim($imagePath, '/')),
         ];
+    }
 
-        $image = $product->image ?? null; // adjust to your Product column
-        if ($image) {
-            $productData['images'] = [
-                str_starts_with($image, 'http') ? $image : asset('storage/' . ltrim($image, '/')),
-            ];
-        }
+    $unitAmount = (int) round($item->price * 100);
+    $lineSubtotal = (int) round($item->subtotal * 100);
 
+    if ($lineSubtotal === $unitAmount * $item->quantity) {
+        // Normal item: Stripe shows price x quantity
+        $itemsTotal += $lineSubtotal;
         $lineItems[] = [
             'quantity' => $item->quantity,
             'price_data' => [
@@ -53,7 +61,21 @@ public function create(Request $request)
                 'product_data' => $productData,
             ],
         ];
+    } else {
+        // Promo item (e.g. buy 2 get 1 free): the stored subtotal is lower than
+        // price x quantity, so send the real subtotal as a single line
+        $productData['name'] = $name . ' × ' . $item->quantity . ' (promo applied)';
+        $itemsTotal += $lineSubtotal;
+        $lineItems[] = [
+            'quantity' => 1,
+            'price_data' => [
+                'currency' => $currency,
+                'unit_amount' => $lineSubtotal,
+                'product_data' => $productData,
+            ],
+        ];
     }
+}
 
     // 2. Tax as its own row
     $tax = (int) round($order->tax * 100);
