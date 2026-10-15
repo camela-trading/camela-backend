@@ -8,6 +8,7 @@ use App\Models\CartItem;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Stripe\Checkout\Session;
+use Stripe\Coupon;
 use Stripe\Stripe;
 use Stripe\Webhook;
 
@@ -19,47 +20,53 @@ class StripePaymentController extends Controller
 
         $order = Order::where('id', $request->order_id)
             ->where('user_id', $request->user()->id)
+            ->with('items.product')
             ->firstOrFail();
 
         Stripe::setApiKey(config('services.stripe.secret'));
 
-        // Build one Stripe line item per order item.
-        // Rename: items / product_name / unit_price / quantity to match your model.
         $lineItems = [];
-        $itemsTotal = 0;
 
+        // One line per product in the order
         foreach ($order->items as $item) {
-            $unitAmount = (int) round($item->unit_price * 100);
-            $itemsTotal += $unitAmount * $item->quantity;
-
             $lineItems[] = [
-                'quantity' => $item->quantity,
+                'quantity' => (int) $item->quantity,
                 'price_data' => [
                     'currency' => 'sgd',
-                    'unit_amount' => $unitAmount,
+                    'unit_amount' => (int) round($item->price * 100),
                     'product_data' => [
-                        'name' => $item->product_name,
+                        // Change "name" if your products table uses a different column
+                        'name' => $item->product->name ?? 'Item',
                     ],
                 ],
             ];
         }
 
-        // Shipping, tax, fees, etc. so the total still matches grand_total
-        $difference = (int) round($order->grand_total * 100) - $itemsTotal;
-        if ($difference > 0) {
+        // Shipping
+        if ($order->shipping_fee > 0) {
             $lineItems[] = [
                 'quantity' => 1,
                 'price_data' => [
                     'currency' => 'sgd',
-                    'unit_amount' => $difference,
-                    'product_data' => [
-                        'name' => 'Shipping & fees',
-                    ],
+                    'unit_amount' => (int) round($order->shipping_fee * 100),
+                    'product_data' => ['name' => 'Shipping'],
                 ],
             ];
         }
 
-        $session = Session::create([
+        // Tax
+        if ($order->tax > 0) {
+            $lineItems[] = [
+                'quantity' => 1,
+                'price_data' => [
+                    'currency' => 'sgd',
+                    'unit_amount' => (int) round($order->tax * 100),
+                    'product_data' => ['name' => 'Tax'],
+                ],
+            ];
+        }
+
+        $sessionData = [
             'mode' => 'payment',
             'customer_email' => $request->user()->email,
             'line_items' => $lineItems,
@@ -69,7 +76,21 @@ class StripePaymentController extends Controller
             'metadata' => ['order_id' => $order->id],
             'success_url' => env('FRONTEND_URL') . '/order-confirmation/' . $order->id,
             'cancel_url' => env('FRONTEND_URL') . '/checkout?payment=cancelled',
-        ]);
+        ];
+
+        // Discount (Stripe doesn't allow negative line items, so use a one-time coupon)
+        if ($order->discount > 0) {
+            $coupon = Coupon::create([
+                'amount_off' => (int) round($order->discount * 100),
+                'currency' => 'sgd',
+                'duration' => 'once',
+                'name' => 'Discount',
+            ]);
+
+            $sessionData['discounts'] = [['coupon' => $coupon->id]];
+        }
+
+        $session = Session::create($sessionData);
 
         $order->update([
             'payment_status' => 'PENDING',
