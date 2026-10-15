@@ -41,4 +41,14 @@ return [
     'secret' => env('STRIPE_SECRET'),
     'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
 ],
+
+'jnt' => [
+    'base_url' => env('JNT_BASE_URL'),
+    'username' => env('JNT_USERNAME'),
+    'password' => env('JNT_PASSWORD'),
+    'service_code' => env('JNT_SERVICE_CODE'),
+    'merchant_code' => env('JNT_MERCHANT_CODE'),
+    'pickup_postcode' => env('JNT_PICKUP_POSTCODE'),
+],
 ];
+

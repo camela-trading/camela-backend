@@ -38,6 +38,10 @@ class Order extends Model
 
 'stripe_payment_intent_id',
 
+'jnt_tracking_id',
+
+'jnt_sorting_code',
+
         'transaction_reference',
 
         'gateway_response',

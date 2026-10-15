@@ -184,7 +184,21 @@ foreach ($order->items as $item) {
                 ]);
 
                 CartItem::where('user_id', $order->user_id)->delete();
+
+                if (! $order->jnt_tracking_id) {
+                    try {
+                        $jnt = app(\App\Services\Shipping\JntService::class)->createDelivery($order);
+                        $order->update([
+                            'jnt_tracking_id' => $jnt['tracking_id'] ?? null,
+                            'jnt_sorting_code' => $jnt['sorting_code'] ?? null,
+                        ]);
+                    } catch (\Throwable $e) {
+                        \Log::error('J&T booking failed for ' . $order->order_number . ': ' . $e->getMessage());
+                    }
+                }
             }
+
+
         }
 
         return response()->json(['received' => true]);
