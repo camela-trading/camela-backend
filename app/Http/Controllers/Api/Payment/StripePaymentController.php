@@ -23,19 +23,49 @@ class StripePaymentController extends Controller
 
         Stripe::setApiKey(config('services.stripe.secret'));
 
+        // Build one Stripe line item per order item.
+        // Rename: items / product_name / unit_price / quantity to match your model.
+        $lineItems = [];
+        $itemsTotal = 0;
+
+        foreach ($order->items as $item) {
+            $unitAmount = (int) round($item->unit_price * 100);
+            $itemsTotal += $unitAmount * $item->quantity;
+
+            $lineItems[] = [
+                'quantity' => $item->quantity,
+                'price_data' => [
+                    'currency' => 'sgd',
+                    'unit_amount' => $unitAmount,
+                    'product_data' => [
+                        'name' => $item->product_name,
+                    ],
+                ],
+            ];
+        }
+
+        // Shipping, tax, fees, etc. so the total still matches grand_total
+        $difference = (int) round($order->grand_total * 100) - $itemsTotal;
+        if ($difference > 0) {
+            $lineItems[] = [
+                'quantity' => 1,
+                'price_data' => [
+                    'currency' => 'sgd',
+                    'unit_amount' => $difference,
+                    'product_data' => [
+                        'name' => 'Shipping & fees',
+                    ],
+                ],
+            ];
+        }
+
         $session = Session::create([
             'mode' => 'payment',
             'customer_email' => $request->user()->email,
-            'line_items' => [[
-                'quantity' => 1,
-                'price_data' => [
-                    'currency' => 'sgd', 
-                    'unit_amount' => (int) round($order->grand_total * 100),
-                    'product_data' => [
-                        'name' => 'Order #' . $order->order_number,
-                    ],
-                ],
-            ]],
+            'line_items' => $lineItems,
+            'payment_intent_data' => [
+                'description' => 'Order #' . $order->order_number,
+            ],
             'metadata' => ['order_id' => $order->id],
             'success_url' => env('FRONTEND_URL') . '/order-confirmation/' . $order->id,
             'cancel_url' => env('FRONTEND_URL') . '/checkout?payment=cancelled',
