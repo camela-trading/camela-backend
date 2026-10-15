@@ -27,16 +27,18 @@ class StripePaymentController extends Controller
 
         $lineItems = [];
 
-        // One line per product in the order
+        // One line per product in the order.
+        // Uses the saved line subtotal so buy-X-get-Y-free promos stay correct.
         foreach ($order->items as $item) {
+            $title = $item->product->title ?? 'Item';
+
             $lineItems[] = [
-                'quantity' => (int) $item->quantity,
+                'quantity' => 1,
                 'price_data' => [
                     'currency' => 'sgd',
-                    'unit_amount' => (int) round($item->price * 100),
+                    'unit_amount' => (int) round($item->subtotal * 100),
                     'product_data' => [
-                        // Change "name" if your products table uses a different column
-                        'name' => $item->product->name ?? 'Item',
+                        'name' => $title . ' x ' . $item->quantity,
                     ],
                 ],
             ];
