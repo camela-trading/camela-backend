@@ -42,6 +42,9 @@ class Order extends Model
 
 'jnt_sorting_code',
 
+'jnt_status',
+'jnt_status_updated_at',
+
         'transaction_reference',
 
         'gateway_response',
@@ -77,6 +80,8 @@ class Order extends Model
             'gateway_response' => 'array',
 
             'callback_response' => 'array',
+
+            'jnt_status_updated_at' => 'datetime',
 
 
         ];

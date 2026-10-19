@@ -37,6 +37,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route as FacadesRoute;
 use App\Models\User;
 
+use App\models\Order;
+
 use App\Http\Controllers\Api\Admin\CategoryController as AdminCategoryController; // added by Darah
 
 /*
@@ -224,6 +226,11 @@ Route::prefix('admin')
         Route::patch(
             'orders/{order}/status',
             [AdminOrderController::class, 'updateStatus']
+        );
+
+        Route::get(
+            'orders/{order}/label',
+            [AdminOrderController::class, 'label']
         );
 
         Route::get(
@@ -434,3 +441,17 @@ Route::middleware('auth:sanctum')->get('/debug-user', function (\Illuminate\Http
 
 Route::middleware('auth:sanctum')->post('/payments/stripe/create', [StripePaymentController::class, 'create']);
 Route::post('/payments/stripe/webhook', [StripePaymentController::class, 'webhook']); // no auth
+
+Route::post('/webhooks/jnt', function (Request $r) {
+    $expected = hash_hmac('sha1', $r->header('X-SimplyPost-Id'), env('JNT_WEBHOOK_SECRET'));
+    if (!hash_equals($expected, (string) $r->header('X-SimplyPost-Signature'))) abort(401);
+
+    $order = Order::where('jnt_tracking_id', $r->tracking_id)->first();
+    if ($order) {
+        $order->jnt_status = $r->status;
+        $order->jnt_status_updated_at = now();
+        if ($r->status === 'DELIVERED') $order->order_status = 'DELIVERED';
+        $order->save();
+    }
+    return response()->json(['ok' => true]);
+});

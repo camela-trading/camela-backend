@@ -65,6 +65,9 @@ class OrderResource extends JsonResource
                 $this->whenLoaded('shippingAddress')
             ),
 
+            'jnt_tracking_id' => $this->jnt_tracking_id,
+'jnt_status'      => $this->jnt_status,
+
             'billing_address' => new AddressResource(
                 $this->whenLoaded('billingAddress')
             ),
