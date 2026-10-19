@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\Api\Admin;
 
+
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateOrderStatusRequest;
 use App\Http\Resources\OrderResource;
 use App\Models\Order;
 use App\Services\Order\OrderService;
-use App\Services\JntService;
+use App\Services\Shipping\JntService;
 
 class OrderController extends Controller
 {
