@@ -79,9 +79,20 @@ class OrderController extends Controller
                 ], 422);
             }
 
+            \Log::info('JNT create response', ['res' => $res]);
+
+            $trackingId = $res['tracking_id'] ?? $res['data']['tracking_id'] ?? null;
+
+            if (!$trackingId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'J&T did not return a tracking ID: ' . json_encode($res),
+                ], 422);
+            }
+
             $order->update([
-                'jnt_tracking_id'       => $res['tracking_id'] ?? null,
-                'jnt_sorting_code'      => $res['sorting_code'] ?? null,
+                'jnt_tracking_id'       => $trackingId,
+                'jnt_sorting_code'      => $res['sorting_code'] ?? $res['data']['sorting_code'] ?? null,
                 'jnt_status'            => 'PENDING_PICKUP',
                 'jnt_status_updated_at' => now(),
             ]);
