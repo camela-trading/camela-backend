@@ -155,25 +155,32 @@ class ProductService
         });
     }
 
-    private function resolvePrice(array $data, ?Product $product = null): array
+private function taxRate(): float
 {
-        $basis = $data['price_basis'] ?? $product?->price_basis ?? 'without_gst';
+    return (float) (\App\Models\StoreSetting::first()?->tax_rate ?? 0);
+}
 
-        $without = array_key_exists('price_without_gst', $data)
-            ? $data['price_without_gst']
-            : $product?->price_without_gst;
+private function resolvePrice(array $data, ?Product $product = null): array
+{
+    $basis = $data['price_basis'] ?? $product?->price_basis ?? 'without_gst';
 
-        $with = array_key_exists('price_with_gst', $data)
-            ? $data['price_with_gst']
-            : $product?->price_with_gst;
-
-        return [
-            'price_basis'       => $basis,
-            'price_without_gst' => $without,
-            'price_with_gst'    => $with,
-            'price'             => $basis === 'with_gst' ? $with : $without,
-        ];
+    if (array_key_exists('price_without_gst', $data) && $data['price_without_gst'] !== null) {
+        // admin sent a new price: recalculate with-GST using the current tax rate
+        $without = (float) $data['price_without_gst'];
+        $with = round($without * (1 + $this->taxRate() / 100), 2);
+    } else {
+        // nothing sent (e.g. activate/deactivate button): keep what is stored
+        $without = $product?->price_without_gst;
+        $with = $product?->price_with_gst;
     }
+
+    return [
+        'price_basis'       => $basis,
+        'price_without_gst' => $without,
+        'price_with_gst'    => $with,
+        'price'             => $basis === 'with_gst' ? $with : $without,
+    ];
+}
 
     public function delete(Product $product): void
     {

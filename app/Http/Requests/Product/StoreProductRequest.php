@@ -58,9 +58,7 @@ class StoreProductRequest extends FormRequest
             ],
 'price_basis' => ['required', 'in:without_gst,with_gst'],
 
-'price_without_gst' => ['required_if:price_basis,without_gst', 'nullable', 'numeric', 'min:0'],
-
-'price_with_gst' => ['required_if:price_basis,with_gst', 'nullable', 'numeric', 'min:0'],
+'price_without_gst' => ['required', 'numeric', 'min:0'],
 
             'cost_price'=>[
                 'nullable',
