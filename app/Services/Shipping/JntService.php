@@ -35,8 +35,8 @@ class JntService
 
     private function isDomestic($order)
     {
-        $country = strtoupper($order->shippingAddress->country_code ?? 'SG');
-        return $country === 'SG';
+        $country = strtolower(trim($order->shippingAddress->country ?? 'singapore'));
+        return in_array($country, ['singapore', 'sg']);
     }
 
     private function serviceCode($order)
@@ -46,35 +46,48 @@ class JntService
             : env('JNT_SERVICE_INTERNATIONAL');
     }
 
+    // Adds +65 if the number has no country prefix (domestic only)
+    private function formatPhone($phone, $domestic)
+    {
+        $phone = preg_replace('/[^\d+]/', '', (string) $phone);
+
+        if ($domestic && !str_starts_with($phone, '+')) {
+            $phone = '+65' . ltrim($phone, '65');
+        }
+
+        return $phone;
+    }
+
     public function createOrder($order)
     {
         $addr = $order->shippingAddress;
+        $domestic = $this->isDomestic($order);
 
         $consignee = [
             'contact_name' => $order->user->name,
-            'phone_number' => $order->user->phone, // format: +65XXXXXXXX
+            'phone_number' => $this->formatPhone($order->user->phone, $domestic),
             'email'        => $order->user->email,
             'address'      => $addr->address,
-            'postcode'     => $addr->zipCode,
-            'country_code' => $addr->country_code,
+            'postcode'     => $addr->zip_code,
+            'country_code' => $domestic ? 'SG' : $addr->country, // confirm format with J&T
         ];
 
-        if (!$this->isDomestic($order)) {
+        if (!$domestic) {
             $consignee['country_name'] = $addr->country;
             $consignee['city']         = $addr->city;
             $consignee['state']        = $addr->state;
         }
 
         $payload = [
-            'reference_number' => $order->order_number,
-            'merchant_code'    => env('JNT_MERCHANT_CODE'),
-            'service_code'     => $this->serviceCode($order),
+            'reference_number'  => $order->order_number,
+            'merchant_code'     => env('JNT_MERCHANT_CODE'),
+            'service_code'      => $this->serviceCode($order),
             'consignee_details' => $consignee,
-            'pickup_details' => [ // your warehouse
-                'contact_name' => 'Your Store',
-                'phone_number' => '+65XXXXXXXX',
-                'address'      => 'Your warehouse address',
-                'postcode'     => '000000',
+            'pickup_details'    => [ // camela details for pickup
+                'contact_name' => 'Camela',
+                'phone_number' => '+6580641997',
+                'address'      => '14 Arumugam  road..LTC building. Block C #06-05A',
+                'postcode'     => '409959',
             ],
             'item_details' => [[
                 'weight'      => 500,
@@ -84,7 +97,7 @@ class JntService
             ]],
         ];
 
-        if (!$this->isDomestic($order)) {
+        if (!$domestic) {
             $payload['need_pickup'] = '1';
             $payload['customs_declaration'] = [
                 'amount'   => (float) $order->grand_total,
