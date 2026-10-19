@@ -43,21 +43,25 @@ class JntService
     private function serviceCode($order)
     {
         return $this->isDomestic($order)
-            ? env('JNT_SERVICE_DOMESTIC')
-            : env('JNT_SERVICE_INTERNATIONAL');
+            ? env('JNT_SERVICE_DOMESTIC_CODE')
+            : env('JNT_SERVICE_INTERNATIONAL_INTERNATIONAL_CODE');
     }
 
     // Adds +65 if the number has no country prefix (domestic only)
-    private function formatPhone($phone, $domestic)
-    {
-        $phone = preg_replace('/[^\d+]/', '', (string) $phone);
+private function formatPhone($phone, $domestic)
+{
+    $phone = preg_replace('/[^\d+]/', '', (string) $phone);
 
-        if ($domestic && !str_starts_with($phone, '+')) {
-            $phone = '+65' . ltrim($phone, '65');
+    if ($domestic && !str_starts_with($phone, '+')) {
+        if (str_starts_with($phone, '65') && strlen($phone) === 10) {
+            $phone = '+' . $phone;
+        } else {
+            $phone = '+65' . $phone;
         }
-
-        return $phone;
     }
+
+    return $phone;
+}
 
     public function createOrder($order)
     {
