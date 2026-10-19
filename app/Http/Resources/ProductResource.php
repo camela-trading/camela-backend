@@ -82,6 +82,10 @@ class ProductResource extends JsonResource
 
             'price' => (float) $this->price,
 
+            'price_without_gst' => $this->price_without_gst !== null ? (float) $this->price_without_gst : null,
+            'price_with_gst'    => $this->price_with_gst !== null ? (float) $this->price_with_gst : null,
+            'price_basis'       => $this->price_basis,
+
             'compare_price' => $this->compare_price
                 ? (float) $this->compare_price
                 : null,

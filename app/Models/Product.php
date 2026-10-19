@@ -24,6 +24,10 @@ class Product extends Model
 
         'compare_price',
 
+        'price_without_gst',
+'price_with_gst',
+'price_basis',
+
         'cost_price',
 
         'stock',

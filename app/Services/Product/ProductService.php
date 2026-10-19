@@ -34,7 +34,7 @@ class ProductService
 
             'description_zh'=>$data['description_zh'] ?? null,  // added by Darah | translation to chinese
 
-            'price'=>$data['price'],
+            ...$this->resolvePrice($data),
 
             'compare_price'=>$data['compare_price'] ?? null,
 
@@ -125,15 +125,15 @@ class ProductService
 
                 'description_zh'=>$data['description_zh'] ?? $product->description_zh,  // added by Darah | translation to chinese
 
-                'price'=>$data['price'] ?? $product->price,
+                ...$this->resolvePrice($data, $product),
 
                 'compare_price'=>$data['compare_price'] ?? $product->compare_price,
 
                 'cost_price'=>$data['cost_price'] ?? $product->cost_price,
 
-                'promo_buy'=>$data['promo_buy'] ?? null, // added by Darah | promo buy
+                               'promo_buy'=>array_key_exists('promo_buy', $data) ? $data['promo_buy'] : $product->promo_buy, // added by Darah | promo buy
 
-                'promo_free'=>$data['promo_free'] ?? null,  // added by Darah | promo free
+                'promo_free'=>array_key_exists('promo_free', $data) ? $data['promo_free'] : $product->promo_free,  // added by Darah | promo free
 
                 'stock'=>$data['stock'] ?? $product->stock,
 
@@ -153,6 +153,26 @@ class ProductService
 
             return $product;
         });
+    }
+
+    private function resolvePrice(array $data, ?Product $product = null): array
+{
+        $basis = $data['price_basis'] ?? $product?->price_basis ?? 'without_gst';
+
+        $without = array_key_exists('price_without_gst', $data)
+            ? $data['price_without_gst']
+            : $product?->price_without_gst;
+
+        $with = array_key_exists('price_with_gst', $data)
+            ? $data['price_with_gst']
+            : $product?->price_with_gst;
+
+        return [
+            'price_basis'       => $basis,
+            'price_without_gst' => $without,
+            'price_with_gst'    => $with,
+            'price'             => $basis === 'with_gst' ? $with : $without,
+        ];
     }
 
     public function delete(Product $product): void
@@ -215,6 +235,9 @@ class ProductService
                         'short_description' => $source->short_description,
                         'description' => $source->description,
                         'price' => $source->price,
+                        'price_without_gst' => $source->price_without_gst,
+                        'price_with_gst' => $source->price_with_gst,
+                        'price_basis' => $source->price_basis,
                         'compare_price' => $source->compare_price,
                         'cost_price' => $source->cost_price,
                         'stock' => $source->stock,
