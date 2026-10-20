@@ -443,8 +443,7 @@ Route::middleware('auth:sanctum')->post('/payments/stripe/create', [StripePaymen
 Route::post('/payments/stripe/webhook', [StripePaymentController::class, 'webhook']); // no auth
 
 Route::post('/webhooks/jnt', function (Request $r) {
-$expected = hash_hmac('sha1', $r->header('X-SimplyPost-Id'), env('JNT_WEBHOOK_SECRET'));
-if (!hash_equals($expected, (string) $r->header('X-SimplyPost-Signature'))) abort(401);
+$expected = hash_hmac('sha1', (string) $r->header('X-SimplyPost-Id'), (string) config('services.jnt.webhook_secret'));if (!hash_equals($expected, (string) $r->header('X-SimplyPost-Signature'))) abort(401);
 
     $order = Order::where('jnt_tracking_id', $r->tracking_id)->first();
     if ($order) {
