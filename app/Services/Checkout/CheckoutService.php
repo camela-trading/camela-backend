@@ -63,11 +63,11 @@ class CheckoutService
             //     return $item->quantity * $item->product->price;
 
             // });
-            $subtotal = $items->sum(function ($item) {
+$isMember = $user->isMember();
 
-                return $item->product->lineTotal($item->quantity);
-
-            });
+$subtotal = $items->sum(function ($item) use ($isMember) {
+    return $item->product->lineTotal($item->quantity, $isMember);
+});
 
             $totalQuantity = (int) $items->sum('quantity');
 
@@ -156,14 +156,9 @@ class CheckoutService
 
                     'quantity' => $item->quantity,
 
-                    'price' => $item->product->price,
+'price' => $item->product->priceFor($user),
 
-                    // 'subtotal' =>
-
-                    //     $item->quantity
-
-                    //     * $item->product->price,
-                    'subtotal' => $item->product->lineTotal($item->quantity),
+'subtotal' => $item->product->lineTotal($item->quantity, $isMember),
 
                 ]);
 
