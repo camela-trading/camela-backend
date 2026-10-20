@@ -109,6 +109,7 @@ class ProductResource extends JsonResource
 'promo_free' => $this->promo_free,
 'is_member'  => $memberView,
 'member_price' => $memberView ? null : (float) $this->price,
+'member_compare_price' => (!$memberView && $this->compare_price) ? (float) $this->compare_price : null,
 // admin form needs the raw values
 'nonmember_price_without_gst' => $isAdmin ? $this->nonmember_price_without_gst : null,
 'nonmember_price_with_gst'    => $isAdmin ? $this->nonmember_price_with_gst : null,
