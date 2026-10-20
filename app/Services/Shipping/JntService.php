@@ -10,14 +10,14 @@ class JntService
 {
     private function base()
     {
-        return env('JNT_BASE_URL') . '/api/gateway/v1';
+        return config('services.jnt.base_url') . '/api/gateway/v1';
     }
 
     // Token is valid 7 days, so cache for 6
     public function token()
     {
         return Cache::remember('jnt_token', now()->addDays(6), function () {
-            $basic = base64_encode(env('JNT_USERNAME') . ':' . env('JNT_PASSWORD'));
+            $basic = base64_encode(config('services.jnt.username') . ':' . config('services.jnt.password'));
 
             $res = Http::withHeaders(['Authorization' => 'Basic ' . $basic])
                 ->post($this->base() . '/auth/login')
@@ -43,8 +43,8 @@ class JntService
     private function serviceCode($order)
     {
         return $this->isDomestic($order)
-            ? env('JNT_SERVICE_DOMESTIC_CODE')
-            : env('JNT_SERVICE_INTERNATIONAL_INTERNATIONAL_CODE');
+            ? config('services.jnt.service_domestic_code')
+            : config('services.jnt.service_international_code');
     }
 
     // Adds +65 if the number has no country prefix (domestic only)
@@ -85,7 +85,7 @@ private function formatPhone($phone, $domestic)
 
         $payload = [
             'reference_number'  => $order->order_number,
-            'merchant_code'     => env('JNT_MERCHANT_CODE'),
+            'merchant_code'     => config('services.jnt.merchant_code'),
             'service_code'      => $this->serviceCode($order),
             'consignee_details' => $consignee,
             'pickup_details'    => [ // camela details for pickup

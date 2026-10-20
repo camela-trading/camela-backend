@@ -9,7 +9,7 @@ Route::get('/', function () {
 });
 
 Route::get('/reset-password/{token}', function (Request $request, string $token) {
-    $frontendUrl = rtrim((string) env('FRONTEND_URL', 'http://localhost:3000'), '/');
+    $frontendUrl = rtrim((string) config('app.frontend_url'), '/');
     $email = $request->query('email');
 
     return redirect()->away($frontendUrl . '/forgot-password?token=' . urlencode($token) . '&email=' . urlencode($email));

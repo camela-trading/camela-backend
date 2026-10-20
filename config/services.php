@@ -47,7 +47,7 @@ return [
     'username' => env('JNT_USERNAME'),
     'password' => env('JNT_PASSWORD'),
     'service_domestic_code' => env('JNT_SERVICE_DOMESTIC_CODE'),
-    'service_international_code' => env('JNT_SERVICE_INTERNATIONAL_INTERNATIONAL_CODE'),    
+    'service_international_code' => env('JNT_SERVICE_INTERNATIONAL_CODE'),    
     'merchant_code' => env('JNT_MERCHANT_CODE'),
     'pickup_postcode' => env('JNT_PICKUP_POSTCODE'),
     'webhook_secret' => env('JNT_WEBHOOK_SECRET'),

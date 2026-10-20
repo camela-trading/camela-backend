@@ -138,8 +138,8 @@ foreach ($order->items as $item) {
             'description' => 'Order #' . $order->order_number,
             'metadata' => ['order_id' => $order->id],
         ],
-        'success_url' => env('FRONTEND_URL') . '/order-confirmation/' . $order->id,
-        'cancel_url' => env('FRONTEND_URL') . '/checkout?payment=cancelled',
+        'success_url' => rtrim(config('app.frontend_url'), '/') . '/order-confirmation/' . $order->id,
+        'cancel_url' => rtrim(config('app.frontend_url'), '/') . '/checkout?payment=cancelled',
     ];
 
     if ($discounts) {

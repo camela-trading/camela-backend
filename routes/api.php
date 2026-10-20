@@ -98,7 +98,7 @@ Route::get('/email/verify/{id}/{hash}', function (Request $request) {
         ])->save();
     }
 
-    $frontendUrl = rtrim((string) env('FRONTEND_URL', 'http://localhost:3000'), '/');
+    $frontendUrl = rtrim((string) config('app.frontend_url'), '/');
     return redirect($frontendUrl . '/email-verified');
 })->middleware('signed')->name('verification.verify');
 
