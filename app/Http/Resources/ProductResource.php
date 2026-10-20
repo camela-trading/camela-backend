@@ -13,8 +13,13 @@ class ProductResource extends JsonResource
      *
      * @return array<string, mixed>
      */
+
+    
     public function toArray($request): array
     {
+        $user = $request->user();
+        $isAdmin = $user && $user->role_id === 1; // adjust to your admin role check
+        $memberView = $isAdmin || ($user && $user->isMember());
         $resolveImageUrl = function (?string $path): ?string {
             if (!$path) {
                 return null;
@@ -80,19 +85,33 @@ class ProductResource extends JsonResource
 
             'sku' => $this->sku,
 
-            'price' => (float) $this->price,
+            // 'price' => (float) $this->price,
 
-            'price_without_gst' => $this->price_without_gst !== null ? (float) $this->price_without_gst : null,
-            'price_with_gst'    => $this->price_with_gst !== null ? (float) $this->price_with_gst : null,
-            'price_basis'       => $this->price_basis,
+            // 'price_without_gst' => $this->price_without_gst !== null ? (float) $this->price_without_gst : null,
+            // 'price_with_gst'    => $this->price_with_gst !== null ? (float) $this->price_with_gst : null,
+            // 'price_basis'       => $this->price_basis,
 
-            'compare_price' => $this->compare_price
-                ? (float) $this->compare_price
-                : null,
+            // 'compare_price' => $this->compare_price
+            //     ? (float) $this->compare_price
+            //     : null,
 
-            'promo_buy' => $this->promo_buy, // added by Darah | promo buy
+            // 'promo_buy' => $this->promo_buy, // added by Darah | promo buy
                 
-            'promo_free' => $this->promo_free, // added by Darah | promo free
+            // 'promo_free' => $this->promo_free, // added by Darah | promo free
+'price' => (float) ($memberView ? $this->price : $this->nonMemberPrice()),
+
+'price_without_gst' => $memberView ? $this->price_without_gst : $this->nonmember_price_without_gst,
+'price_with_gst'    => $memberView ? $this->price_with_gst : $this->nonmember_price_with_gst,
+'price_basis'       => $memberView ? $this->price_basis : $this->nonmember_price_basis,
+
+'compare_price' => ($memberView && $this->compare_price) ? (float) $this->compare_price : null,
+'promo_buy'  => $memberView ? $this->promo_buy : null,
+'promo_free' => $memberView ? $this->promo_free : null,
+
+// admin form needs the raw values
+'nonmember_price_without_gst' => $isAdmin ? $this->nonmember_price_without_gst : null,
+'nonmember_price_with_gst'    => $isAdmin ? $this->nonmember_price_with_gst : null,
+'nonmember_price_basis'       => $isAdmin ? $this->nonmember_price_basis : null,
 
             'category' => optional($this->category)->name,
 

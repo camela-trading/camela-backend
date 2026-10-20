@@ -53,6 +53,13 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->belongsTo(Role::class);
     }
+    public function isMember(): bool
+    {
+        return \App\Models\MemberApplication::where('email', $this->email)
+            ->where('application_type', 'member')
+            ->where('status', 'Approved')
+            ->exists();
+    }
 
     public function inventoryTransactions(): HasMany
     {

@@ -58,6 +58,9 @@ class UpdateProductRequest extends FormRequest
                 'numeric',
                 'min:0',
             ],
+
+            'nonmember_price_basis'       => ['required', 'in:without_gst,with_gst'],
+            'nonmember_price_without_gst' => ['nullable', 'numeric', 'min:0'],
                         
             'promo_buy' => ['nullable', 'integer', 'min:1'], // added by Darah | promo buy
 

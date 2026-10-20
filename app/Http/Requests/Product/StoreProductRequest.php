@@ -60,6 +60,9 @@ class StoreProductRequest extends FormRequest
 
 'price_without_gst' => ['required', 'numeric', 'min:0'],
 
+'nonmember_price_basis'       => ['required', 'in:without_gst,with_gst'],
+'nonmember_price_without_gst' => ['nullable', 'numeric', 'min:0'],
+
             'cost_price'=>[
                 'nullable',
                 'numeric',

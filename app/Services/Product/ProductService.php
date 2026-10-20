@@ -36,6 +36,8 @@ class ProductService
 
             ...$this->resolvePrice($data),
 
+            ...$this->resolveNonMemberPrice($data),
+
             'compare_price'=>$data['compare_price'] ?? null,
 
             'cost_price'=>$data['cost_price'] ?? null,
@@ -127,6 +129,8 @@ class ProductService
 
                 ...$this->resolvePrice($data, $product),
 
+                ...$this->resolveNonMemberPrice($data, $product),
+
                 'compare_price'=>$data['compare_price'] ?? $product->compare_price,
 
                 'cost_price'=>$data['cost_price'] ?? $product->cost_price,
@@ -179,6 +183,28 @@ private function resolvePrice(array $data, ?Product $product = null): array
         'price_without_gst' => $without,
         'price_with_gst'    => $with,
         'price'             => $basis === 'with_gst' ? $with : $without,
+    ];
+}
+
+private function resolveNonMemberPrice(array $data, ?Product $product = null): array
+{
+    $basis = $data['nonmember_price_basis'] ?? $product?->nonmember_price_basis ?? 'without_gst';
+
+    // priority: admin-entered value, then compare_price (original price), then what's stored
+    $input = $data['nonmember_price_without_gst'] ?? $data['compare_price'] ?? null;
+
+    if ($input !== null) {
+        $without = (float) $input;
+        $with = round($without * (1 + $this->taxRate() / 100), 2);
+    } else {
+        $without = $product?->nonmember_price_without_gst;
+        $with = $product?->nonmember_price_with_gst;
+    }
+
+    return [
+        'nonmember_price_basis'       => $basis,
+        'nonmember_price_without_gst' => $without,
+        'nonmember_price_with_gst'    => $with,
     ];
 }
 
@@ -245,6 +271,9 @@ private function resolvePrice(array $data, ?Product $product = null): array
                         'price_without_gst' => $source->price_without_gst,
                         'price_with_gst' => $source->price_with_gst,
                         'price_basis' => $source->price_basis,
+                        'nonmember_price_without_gst' => $source->nonmember_price_without_gst,
+                        'nonmember_price_with_gst' => $source->nonmember_price_with_gst,
+                        'nonmember_price_basis' => $source->nonmember_price_basis,
                         'compare_price' => $source->compare_price,
                         'cost_price' => $source->cost_price,
                         'stock' => $source->stock,
