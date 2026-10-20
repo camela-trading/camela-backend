@@ -108,7 +108,7 @@ $subtotal = $items->sum(function ($item) use ($isMember) {
             |--------------------------------------------------------------------------
             */
 
-            $tax = ($subtotal * (float) $settings->tax_rate) / 100;
+            $tax = 0;
 
             $grandTotal =
 
