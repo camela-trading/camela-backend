@@ -55,7 +55,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
     public function isMember(): bool
     {
-        return \App\Models\MemberApplication::where('email', $this->email)
+        return \App\Models\MembershipApplication::where('email', $this->email)
             ->where('application_type', 'member')
             ->where('status', 'Approved')
             ->exists();
