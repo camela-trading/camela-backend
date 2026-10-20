@@ -187,7 +187,7 @@ foreach ($order->items as $item) {
 
                 if (! $order->jnt_tracking_id) {
                     try {
-                        $jnt = app(\App\Services\Shipping\JntService::class)->createDelivery($order);
+                        $jnt = app(\App\Services\Shipping\JntService::class)->createOrder($order);
                         $order->update([
                             'jnt_tracking_id' => $jnt['tracking_id'] ?? null,
                             'jnt_sorting_code' => $jnt['sorting_code'] ?? null,

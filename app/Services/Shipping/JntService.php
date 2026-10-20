@@ -67,10 +67,12 @@ private function formatPhone($phone, $domestic)
     {
         $addr = $order->shippingAddress;
         $domestic = $this->isDomestic($order);
-
+if (blank($order->user->phone)) {
+    throw new \RuntimeException('Customer has no phone number. Ask them to add one in their profile.');
+}
         $consignee = [
             'contact_name' => $order->user->name,
-            'phone_number' => $this->formatPhone($order->user->phone, $domestic),
+            'phone_number' => $this->formatPhone($addr->phone ?? $order->user->phone, $domestic),
             'email'        => $order->user->email,
             'address'      => $addr->address,
             'postcode'     => $addr->zip_code,
