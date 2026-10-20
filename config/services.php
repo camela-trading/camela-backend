@@ -50,7 +50,7 @@ return [
     'service_international_code' => env('JNT_SERVICE_INTERNATIONAL_INTERNATIONAL_CODE'),    
     'merchant_code' => env('JNT_MERCHANT_CODE'),
     'pickup_postcode' => env('JNT_PICKUP_POSTCODE'),
-    'webhook_scret' => env('JNT_WEBHOOK_SECRET'),
+    'webhook_secret' => env('JNT_WEBHOOK_SECRET'),
 ],
 ];
 
