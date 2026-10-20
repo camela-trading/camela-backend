@@ -17,7 +17,7 @@ class ProductResource extends JsonResource
     
     public function toArray($request): array
     {
-        $user = $request->user();
+        $user = $request->user('sanctum') ?? $request->user();
         $isAdmin = $user && $user->role_id === 1; // adjust to your admin role check
         $memberView = $isAdmin || ($user && $user->isMember());
         $resolveImageUrl = function (?string $path): ?string {
