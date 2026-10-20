@@ -59,7 +59,8 @@ class UpdateProductRequest extends FormRequest
                 'min:0',
             ],
 
-            'nonmember_price_basis'       => ['required', 'in:without_gst,with_gst'],
+            'nonmember_p
+            rice_basis'       => ['required', 'in:without_gst,with_gst'],
             'nonmember_price_without_gst' => ['nullable', 'numeric', 'min:0'],
                         
             'promo_buy' => ['nullable', 'integer', 'min:1'], // added by Darah | promo buy
@@ -76,6 +77,12 @@ class UpdateProductRequest extends FormRequest
                 'numeric',
                 'min:0',
             ],
+
+            'weight'      => ['nullable', 'numeric', 'min:0.01'],
+'weight_unit' => ['nullable', 'in:G,Kg'],
+'length'      => ['sometimes', 'required', 'numeric', 'min:0.01'],
+'width'       => ['sometimes', 'required', 'numeric', 'min:0.01'],
+'height'      => ['sometimes', 'required', 'numeric', 'min:0.01'],
 
             'stock'=>[
                 'sometimes',

@@ -55,6 +55,11 @@ class Product extends Model
         'promo_buy', // added by Darah | promo buy
       
         'promo_free', // added by Darah | promo free
+        'weight',
+'weight_unit',
+'length',
+'width',
+'height',
     ];
 
     public function category()

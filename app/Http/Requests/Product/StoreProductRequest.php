@@ -80,10 +80,13 @@ class StoreProductRequest extends FormRequest
                 'integer',
             ],
 
-            'weight'=>[
-                'nullable',
-                'numeric',
-            ],
+
+
+            'weight'      => ['nullable', 'numeric', 'min:0.01'],
+'weight_unit' => ['nullable', 'in:G,Kg'],
+'length'      => ['required', 'numeric', 'min:0.01'],
+'width'       => ['required', 'numeric', 'min:0.01'],
+'height'      => ['required', 'numeric', 'min:0.01'],
 
             'status' => [
                 'required',

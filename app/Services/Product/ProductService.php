@@ -52,6 +52,11 @@ class ProductService
 
             'weight'=>$data['weight'] ?? null,
 
+            'weight_unit' => $data['weight_unit'] ?? 'G',
+'length'      => $data['length'] ?? null,
+'width'       => $data['width'] ?? null,
+'height'      => $data['height'] ?? null,
+
             'status'=>$data['status'],
 
             'featured'=>$data['featured'] ?? false,
@@ -144,6 +149,11 @@ class ProductService
                 'low_stock_alert'=>$data['low_stock_alert'] ?? $product->low_stock_alert,
 
                 'weight'=>$data['weight'] ?? $product->weight,
+
+                'weight_unit' => $data['weight_unit'] ?? $product->weight_unit,
+'length'      => $data['length'] ?? $product->length,
+'width'       => $data['width'] ?? $product->width,
+'height'      => $data['height'] ?? $product->height,
 
                 'status'=>$data['status'] ?? $product->status,
 
@@ -283,6 +293,11 @@ private function resolveNonMemberPrice(array $data, ?Product $product = null): a
                         'featured' => $source->featured,
                         'seo_title' => $source->seo_title,
                         'seo_description' => $source->seo_description,
+                        'weight_unit' => $data['weight_unit'] ?? 'G',
+'weight_unit' => $source->weight_unit,
+'length'      => $source->length,
+'width'       => $source->width,
+'height'      => $source->height,
                     ]);
 
                     foreach ($source->images as $image) {

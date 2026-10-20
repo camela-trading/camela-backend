@@ -136,6 +136,11 @@ class ProductResource extends JsonResource
             'status' => $this->status,
 
             'featured' => (bool) $this->featured,
+            'weight'      => $this->weight !== null ? (float) $this->weight : null,
+'weight_unit' => $this->weight_unit,
+'length'      => $this->length !== null ? (float) $this->length : null,
+'width'       => $this->width !== null ? (float) $this->width : null,
+'height'      => $this->height !== null ? (float) $this->height : null,
 
             /*
             |--------------------------------------------------------------------------
@@ -148,6 +153,7 @@ class ProductResource extends JsonResource
             'images' => $images,
 
             'images_detailed' => $imagesDetailed,
+            
 
         ];
     }
