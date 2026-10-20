@@ -116,7 +116,7 @@ class CartService
             ->cartItems
             ->sum(function ($item) {
 
-                return $item->product->price * $item->quantity;
+                return $item->product->priceFor($user) * $item->quantity;
 
             });
     }

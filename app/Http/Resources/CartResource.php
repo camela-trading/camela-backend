@@ -9,10 +9,10 @@ class CartResource extends JsonResource
 {
     public function toArray($request): array
     {
-        $subtotal = $this->sum(function ($item) {
+        $user = $request->user();
 
-            return (float) $item->product->price * $item->quantity;
-
+        $subtotal = $this->sum(function ($item) use ($user) {
+            return $item->product->priceFor($user) * $item->quantity;
         });
 
         return [

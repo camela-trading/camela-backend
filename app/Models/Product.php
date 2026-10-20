@@ -62,6 +62,13 @@ class Product extends Model
         return $this->belongsTo(Category::class);
     }
 
+    public function priceFor(?\App\Models\User $user): float
+    {
+        return ($user && $user->isMember())
+            ? (float) $this->price
+            : $this->nonMemberPrice();
+    }
+
     public function images()
     {
         return $this->hasMany(ProductImage::class);
