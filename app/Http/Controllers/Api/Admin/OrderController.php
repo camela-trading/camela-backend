@@ -97,6 +97,12 @@ class OrderController extends Controller
                 'jnt_status_updated_at' => now(),
             ]);
         }
+        if ($order->jnt_tracking_id && blank($order->jnt_status)) {
+            $order->update([
+                'jnt_status'            => 'PENDING_PICKUP',
+                'jnt_status_updated_at' => now(),
+            ]);
+        }
 
         $order = $this->orderService->updateStatus(
             $order,
