@@ -130,6 +130,11 @@ foreach ($order->items as $item) {
         'line_items' => $lineItems,
         'shipping_options' => $shippingOptions,
         'client_reference_id' => $order->order_number,
+        'custom_text' => [
+            'submit' => [
+                'message' => 'Exchange rate will depend on Stripe\'s daily transaction rate.',
+            ],
+        ],
         'metadata' => [
             'order_id' => $order->id,
             'order_number' => $order->order_number,
