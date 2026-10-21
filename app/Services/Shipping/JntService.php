@@ -96,12 +96,7 @@ if (blank($order->user->phone)) {
                 'address'      => '14 Arumugam  road..LTC building. Block C #06-05A',
                 'postcode'     => '409959',
             ],
-            'item_details' => [[
-                'weight'      => 500,
-                'weight_unit' => 'G',
-                'quantity'    => 1,
-                'description' => 'Order ' . $order->order_number,
-            ]],
+            'item_details' => $this->buildItems($order),
         ];
 
         if (!$domestic) {
@@ -137,4 +132,31 @@ if (blank($order->user->phone)) {
             ->throw()
             ->json();
     }
+
+    private function buildItems($order): array
+{
+    $order->loadMissing('items.product');
+
+    return $order->items->map(function ($item) {
+        $p = $item->product;
+
+        foreach (['length', 'width', 'height'] as $dim) {
+            if (blank($p->$dim)) {
+                throw new \RuntimeException(
+                    "Product \"{$p->title}\" has no {$dim}. Edit the product and add its parcel dimensions."
+                );
+            }
+        }
+
+        return [
+            'length'      => (float) $p->length,
+            'width'       => (float) $p->width,
+            'height'      => (float) $p->height,
+            'weight'      => $p->weight !== null ? (float) $p->weight : 500,
+            'weight_unit' => $p->weight !== null ? ($p->weight_unit ?? 'G') : 'G',
+            'quantity'    => (int) $item->quantity,
+            'description' => $p->title,
+        ];
+    })->values()->all();
+}
 }
