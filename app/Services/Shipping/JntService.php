@@ -5,6 +5,7 @@ namespace App\Services\Shipping;
 
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class JntService
 {
@@ -33,6 +34,23 @@ class JntService
             'Authorization' => 'JWT ' . $this->token(),
         ])->acceptJson();
     }
+
+    private function send(string $method, string $url, array $payload = [])
+{
+    Log::info('JNT request', ['method' => $method, 'url' => $url, 'payload' => $payload]);
+
+    $res = $method === 'post'
+        ? $this->http()->post($url, $payload)
+        : $this->http()->get($url);
+
+    Log::info('JNT response', [
+        'url'    => $url,
+        'status' => $res->status(),
+        'body'   => $res->json() ?? $res->body(),
+    ]);
+
+    return $res->throw()->json();
+}
 
     private function isDomestic($order)
     {
@@ -110,27 +128,31 @@ if (blank($order->user->phone)) {
         // Add only if the order is cash on delivery:
         // $payload['cod'] = ['amount' => (float) $order->grand_total, 'currency' => 'SGD'];
 
-        return $this->http()
-            ->post($this->base() . '/deliveries', $payload)
-            ->throw()
-            ->json();
+        // return $this->http()
+        //     ->post($this->base() . '/deliveries', $payload)
+        //     ->throw()
+        //     ->json();
+
+        return $this->send('post', $this->base() . '/deliveries', $payload);
         // returns tracking_id, reference_number, sorting_code (+ awbnumber for international)
     }
 
     public function label($trackingId)
     {
-        return $this->http()
-            ->get($this->base() . "/deliveries/connote/{$trackingId}/A6/S1")
-            ->throw()
-            ->json();
+        // return $this->http()
+        //     ->get($this->base() . "/deliveries/connote/{$trackingId}/A6/S1")
+        //     ->throw()
+        //     ->json();
+        return $this->send('get', $this->base() . "/deliveries/connote/{$trackingId}/A6/S1");
     }
 
     public function track($trackingId)
     {
-        return $this->http()
-            ->get($this->base() . "/track/{$trackingId}")
-            ->throw()
-            ->json();
+        // return $this->http()
+        //     ->get($this->base() . "/track/{$trackingId}")
+        //     ->throw()
+        //     ->json();
+        return $this->send('get', $this->base() . "/track/{$trackingId}");
     }
 
     private function buildItems($order): array
