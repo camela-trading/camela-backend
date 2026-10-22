@@ -233,6 +233,8 @@ Route::prefix('admin')
             [AdminOrderController::class, 'label']
         );
 
+        Route::post('orders/{order}/refresh-jnt', [AdminOrderController::class, 'refreshJnt']);
+
         Route::get(
             'store-settings',
             [StoreSettingController::class,'show']

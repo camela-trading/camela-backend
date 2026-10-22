@@ -47,7 +47,23 @@ class OrderController extends Controller
             ])
         );
     }
+public function refreshJnt(Order $order, JntService $jnt)
+{
+    if (!$order->jnt_tracking_id) {
+        return response()->json(['message' => 'No J&T shipment for this order yet.'], 422);
+    }
 
+    $status = $jnt->latestStatus($order->jnt_tracking_id);
+
+    if ($status) {
+        $order->update([
+            'jnt_status' => $status,
+            'jnt_status_updated_at' => now(),
+        ]);
+    }
+
+    return response()->json(['success' => true, 'data' => new OrderResource($order->fresh())]);
+}
     public function label(Order $order, JntService $jnt)
     {
         if (!$order->jnt_tracking_id) {

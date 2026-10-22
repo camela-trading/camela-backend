@@ -155,6 +155,22 @@ if (blank($order->user->phone)) {
         return $this->send('get', $this->base() . "/track/{$trackingId}");
     }
 
+public function latestStatus($trackingId): ?string
+{
+    $res = $this->track($trackingId);
+
+    $status = $res['status'] ?? $res['data']['status'] ?? null;
+
+    if (!$status) {
+        $events = $res['events'] ?? $res['data']['events']
+            ?? $res['tracking_history'] ?? $res['data']['tracking_history'] ?? [];
+        $last = is_array($events) ? end($events) : null;
+        $status = is_array($last) ? ($last['status'] ?? null) : null;
+    }
+
+    return $status ? strtoupper($status) : null;
+}
+
     private function buildItems($order): array
 {
     $order->loadMissing('items.product');
