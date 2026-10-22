@@ -442,15 +442,4 @@ Route::middleware('auth:sanctum')->get('/debug-user', function (\Illuminate\Http
 Route::middleware('auth:sanctum')->post('/payments/stripe/create', [StripePaymentController::class, 'create']);
 Route::post('/payments/stripe/webhook', [StripePaymentController::class, 'webhook']); // no auth
 
-Route::post('/webhooks/jnt', function (Request $r) {
-$expected = hash_hmac('sha1', (string) $r->header('X-SimplyPost-Id'), (string) config('services.jnt.webhook_secret'));if (!hash_equals($expected, (string) $r->header('X-SimplyPost-Signature'))) abort(401);
-
-    $order = Order::where('jnt_tracking_id', $r->tracking_id)->first();
-    if ($order) {
-        $order->jnt_status = $r->status;
-        $order->jnt_status_updated_at = now();
-        if ($r->status === 'DELIVERED') $order->order_status = 'DELIVERED';
-        $order->save();
-    }
-    return response()->json(['ok' => true]);
-});
+Route::post('/webhooks/jnt', [\App\Http\Controllers\Api\Webhook\JntWebhookController::class, 'handle']);
