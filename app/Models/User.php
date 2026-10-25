@@ -59,7 +59,6 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->memberCache ??= \App\Models\MembershipApplication::where('email', $this->email)
             ->where('application_type', 'member')
-            ->where('status', 'Approved')
             ->exists();
     }
     public function inventoryTransactions(): HasMany
