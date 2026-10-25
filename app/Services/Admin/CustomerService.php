@@ -20,7 +20,7 @@ class CustomerService
             ->where('role_id', 2)
             ->latest()
             ->get()
-            ->map(function ($user) {
+            ->map(function ($user) use ($types) {
 
                 $orders = $user->orders;
 
