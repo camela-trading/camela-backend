@@ -21,10 +21,14 @@
                     </tr>
                     <tr>
                         <td style="padding:32px;">
-                            <p style="margin:0 0 14px;line-height:1.7;font-size:15px;">Thank you for applying, {{ $fullName }}.</p>
+                            <!-- <p style="margin:0 0 14px;line-height:1.7;font-size:15px;">Thank you for applying, {{ $fullName }}.</p>
                             <p style="margin:0 0 14px;line-height:1.7;font-size:15px;">You submitted an application for {{ $applicationTypeLabel }}.</p>
                             <p style="margin:0 0 14px;line-height:1.7;font-size:15px;">We have successfully received your membership application.</p>
-                            <p style="margin:0;line-height:1.7;font-size:15px;">Our team will review it shortly.</p>
+                            <p style="margin:0;line-height:1.7;font-size:15px;">Our team will review it shortly.</p> -->
+                            <p style="margin:0 0 14px;line-height:1.7;font-size:15px;">Congratulations, {{ $fullName }}!</p>
+                            <p style="margin:0 0 14px;line-height:1.7;font-size:15px;">You have successfully registered as {{ $applicationTypeLabel }}.</p>
+                            <p style="margin:0 0 14px;line-height:1.7;font-size:15px;">Your membership application has been received and recorded successfully.</p>
+                            <p style="margin:0;line-height:1.7;font-size:15px;">We're excited to have you!</p>
                         </td>
                     </tr>
                     <tr>
