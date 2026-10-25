@@ -20,7 +20,7 @@ class ProductResource extends JsonResource
         $user = $request->user('sanctum') ?? $request->user();
         $isAdmin = $user && $user->role_id === 1; 
         $isAdminRoute = $request->is('api/admin/*');
-        $memberView = $isAdmin || ($user && $user->isMember());
+        $memberView = $isAdminRoute || ($user && $user->isMember());
         $resolveImageUrl = function (?string $path): ?string {
             if (!$path) {
                 return null;
