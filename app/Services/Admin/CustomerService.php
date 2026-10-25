@@ -2,12 +2,17 @@
 
 namespace App\Services\Admin;
 
+
 use App\Models\User;
+use App\Models\MembershipApplication;
 
 class CustomerService
 {
     public function index()
     {
+        $types = MembershipApplication::orderBy('created_at')
+    ->pluck('application_type', 'email')
+    ->mapWithKeys(fn ($type, $email) => [strtolower($email) => $type]);
         return User::with([
                 'orders',
                 'addresses',
@@ -65,6 +70,8 @@ class CustomerService
                     'joined' => $user->created_at,
 
                     'status' => 'active',
+
+                    'membership_type' => $types[strtolower($user->email)] ?? 'nonmember',
 
                 ];
 
