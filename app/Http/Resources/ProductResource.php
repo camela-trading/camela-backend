@@ -18,7 +18,8 @@ class ProductResource extends JsonResource
     public function toArray($request): array
     {
         $user = $request->user('sanctum') ?? $request->user();
-        $isAdmin = $user && $user->role_id === 1; // adjust to your admin role check
+        $isAdmin = $user && $user->role_id === 1; 
+        $isAdminRoute = $request->is('api/admin/*');
         $memberView = $isAdmin || ($user && $user->isMember());
         $resolveImageUrl = function (?string $path): ?string {
             if (!$path) {
@@ -111,9 +112,9 @@ class ProductResource extends JsonResource
 'member_price' => $memberView ? null : (float) $this->price,
 'member_compare_price' => (!$memberView && $this->compare_price) ? (float) $this->compare_price : null,
 // admin form needs the raw values
-'nonmember_price_without_gst' => $isAdmin ? $this->nonmember_price_without_gst : null,
-'nonmember_price_with_gst'    => $isAdmin ? $this->nonmember_price_with_gst : null,
-'nonmember_price_basis'       => $isAdmin ? $this->nonmember_price_basis : null,
+'nonmember_price_without_gst' => $isAdminRoute ? $this->nonmember_price_without_gst : null,
+'nonmember_price_with_gst'    => $isAdminRoute ? $this->nonmember_price_with_gst : null,
+'nonmember_price_basis'       => $isAdminRoute ? $this->nonmember_price_basis : null,
 
             'category' => optional($this->category)->name,
 
