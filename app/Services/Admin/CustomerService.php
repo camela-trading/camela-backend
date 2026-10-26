@@ -17,7 +17,7 @@ class CustomerService
                 'orders',
                 'addresses',
             ])
-            ->where('role_id', 2)
+            ->whereIn('role_id', [1,2])
             ->latest()
             ->get()
             ->map(function ($user) use ($types) {
@@ -28,7 +28,7 @@ class CustomerService
                     ->where('is_default', true)
                     ->first();
 
-                $position = User::where('role_id', 2)
+                $position = User::whereIn('role_id', [1,2])
                     ->where('id', '<=', $user->id)
                     ->count();
 
@@ -71,7 +71,9 @@ class CustomerService
 
                     'status' => 'active',
 
-                    'membership_type' => $types[strtolower($user->email)] ?? 'nonmember',
+                    'membership_type' => $user->role_id === 1
+    ? 'admin'
+    : ($types[strtolower($user->email)] ?? 'nonmember'),
 
                 ];
 
