@@ -71,9 +71,9 @@ class CustomerService
 
                     'status' => 'active',
 
-                    'membership_type' => $user->role_id === 1
-    ? 'admin'
-    : ($types[strtolower($user->email)] ?? 'nonmember'),
+                    'membership_type' => $types[strtolower($user->email)] ?? 'nonmember',
+
+                    'is_admin' => $user->role_id === 1,
 
                 ];
 
