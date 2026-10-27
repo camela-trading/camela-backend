@@ -275,6 +275,10 @@ Route::prefix('admin')
             'categories/{category}',
             [AdminCategoryController::class, 'update']
         );
+        Route::delete(
+            'categories/{category}',
+            [AdminCategoryController::class, 'destroy']
+        );
     }); 
 /*
 |--------------------------------------------------------------------------

@@ -8,7 +8,7 @@ use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
-
+use App\Models\Product;
 class CategoryController extends Controller
 {
     public function index()
@@ -46,6 +46,18 @@ class CategoryController extends Controller
         ]);
 
         return new CategoryResource($category);
+    }
+        public function destroy(Category $category)
+    {
+        if (Product::where('category_id', $category->id)->exists()) {
+            return response()->json([
+                'message' => 'Cannot delete a category that still has products.',
+            ], 422);
+        }
+
+        $category->delete();
+
+        return response()->json(['message' => 'Category deleted']);
     }
 
     private function uniqueSlug(string $name, ?int $ignoreId = null): string
